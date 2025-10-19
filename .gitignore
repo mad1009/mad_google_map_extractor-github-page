@@ -15,6 +15,14 @@ ENV/
 *.swp
 *.swo
 
+# PyInstaller
+dist/
+build/
+*.spec.bak
+*.manifest
+*.exe
+*.app
+
 # Project specific
 output/*.csv
 output/*.xlsx

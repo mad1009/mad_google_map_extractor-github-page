@@ -18,6 +18,8 @@ COLORS = {
     'bg_light': '#2b2b2b',
     'text_light': '#ffffff',
     'text_dark': '#000000',
+    'text_secondary': '#999999',
+    'border': '#444444',
 }
 
 

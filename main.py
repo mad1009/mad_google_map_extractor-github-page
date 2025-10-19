@@ -28,6 +28,16 @@ def main():
     logger.info("Google Maps Scraper Started")
     logger.info("=" * 50)
     
+    # Set Playwright browser path if running from bundled executable
+    if getattr(sys, 'frozen', False):
+        # Running from PyInstaller bundle
+        import os
+        bundle_dir = sys._MEIPASS
+        browsers_path = os.path.join(bundle_dir, 'playwright_browsers')
+        # Set environment variable to point to the bundled browsers directory
+        os.environ['PLAYWRIGHT_BROWSERS_PATH'] = browsers_path
+        logger.info(f"Using bundled Chromium browser at: {browsers_path}")
+    
     try:
         # Apply GUI theme
         apply_theme()

@@ -5,6 +5,7 @@ Multi-threaded interface with modern CustomTkinter design
 import customtkinter as ctk
 import queue
 import asyncio
+import webbrowser
 from typing import List, Dict
 from pathlib import Path
 from datetime import datetime
@@ -176,6 +177,47 @@ class MainWindow(ctk.CTk):
             **get_button_style('danger')
         )
         self.stop_btn.pack(fill="x", pady=2)
+        
+        # Donate Section
+        donate_frame = ctk.CTkFrame(left_frame, fg_color="transparent")
+        donate_frame.grid(row=6, column=0, padx=15, pady=(5, 10), sticky="ew")
+        
+        # Separator line
+        separator = ctk.CTkFrame(donate_frame, height=1, fg_color=COLORS['border'])
+        separator.pack(fill="x", pady=(0, 8))
+        
+        # Donate message
+        donate_label = ctk.CTkLabel(
+            donate_frame,
+            text="💖 Enjoying this tool?",
+            font=FONTS['small'],
+            text_color=COLORS['text_secondary']
+        )
+        donate_label.pack(pady=(0, 5))
+        
+        # Donate button with gradient effect
+        self.donate_btn = ctk.CTkButton(
+            donate_frame,
+            text="💙 Make A donation",
+            command=self.open_donate_link,
+            font=("Segoe UI", 13, "bold"),
+            height=36,
+            fg_color=("#0070BA", "#003087"),  # PayPal blue gradient
+            hover_color=("#005EA6", "#002C5F"),
+            corner_radius=20,  # More rounded like PayPal buttons
+            border_width=0
+        )
+        self.donate_btn.pack(fill="x", pady=2)
+        
+        # Thank you message (small)
+        thank_label = ctk.CTkLabel(
+            donate_frame,
+            text="Your support helps keep this project alive! 🚀",
+            font=("Segoe UI", 9),
+            text_color=COLORS['text_secondary'],
+            wraplength=250
+        )
+        thank_label.pack(pady=(3, 0))
     
     def _create_middle_panel(self):
         """Create middle panel with status and thread monitoring"""
@@ -534,10 +576,12 @@ class MainWindow(ctk.CTk):
         self.logger.info(f"Scraping finished. Total unique results: {len(self.all_results)}")
     
     def stop_scraping(self):
-        """Stop the scraping process"""
+        """Stop the scraping process immediately"""
         if self.worker_pool:
-            self.logger.info("🛑 Stopping workers...")
-            self.worker_pool.stop(wait=True)
+            self.logger.info("🛑 Force stopping all workers...")
+            
+            # Force stop without waiting (kills threads immediately)
+            self.worker_pool.stop(wait=False, force=True)
             self.worker_pool = None
         
         self.is_scraping = False
@@ -549,12 +593,51 @@ class MainWindow(ctk.CTk):
         
         # Update thread status
         self._update_threads_status(
-            f"⏹️ All threads stopped\n"
+            f"⏹️ All threads force-stopped\n"
             f"📊 Completed: {self.completed_tasks}/{self.total_tasks} tasks\n"
-            f"✅ Results: {len(self.all_results)}"
+            f"✅ Results collected: {len(self.all_results)}"
         )
         
-        self.logger.info("⏹️ Scraping stopped by user")
+        self.logger.info("⏹️ Scraping force-stopped by user")
+        
+        # Send notification
+        Notifier.notify_warning(f"Scraping stopped - {self.completed_tasks}/{self.total_tasks} tasks completed")
+    
+    def open_donate_link(self):
+        """Open donation link in browser"""
+        try:
+            # Load donation config
+            import json
+            config_path = Path(__file__).parent.parent.parent / 'config' / 'donation.json'
+            
+            if config_path.exists():
+                with open(config_path, 'r') as f:
+                    donation_config = json.load(f)
+                
+                # Check if donations are enabled
+                if not donation_config.get('donation', {}).get('enabled', True):
+                    return
+                
+                # Get platform and username
+                platform = donation_config['donation'].get('platform', 'buymeacoffee')
+                username = donation_config['donation'].get('username', 'yourusername')
+                custom_url = donation_config['donation'].get('custom_url')
+                
+                # Build URL
+                if custom_url:
+                    donation_url = custom_url
+                else:
+                    url_template = donation_config['donation_platforms'].get(platform, '')
+                    donation_url = url_template.format(username=username, custom_url=custom_url)
+            else:
+                # Fallback to default
+                donation_url = 'https://buymeacoffee.com/yourusername'
+            
+            webbrowser.open(donation_url)
+            self.logger.info("💖 Thank you for considering a donation!")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to open donation link: {e}")
     
     def export_data(self, format_type: str):
         """Export scraped data"""

@@ -160,25 +160,49 @@ class WorkerPool:
         except queue.Empty:
             return None
     
-    def stop(self, wait: bool = True):
-        """Stop all workers"""
-        self.logger.info("Stopping all workers")
+    def stop(self, wait: bool = True, force: bool = False):
+        """
+        Stop all workers
         
-        # Send poison pills to all workers
-        for _ in range(self.num_workers):
-            self.task_queue.put(None)
+        Args:
+            wait: If True, wait for workers to finish current tasks
+            force: If True, forcefully stop workers immediately (daemon threads will die with main thread)
+        """
+        self.logger.info("Stopping all workers" + (" (forced)" if force else ""))
         
-        # Stop all workers
-        for worker in self.workers:
-            worker.stop()
-        
-        # Wait for workers to finish
-        if wait:
+        if force:
+            # Force stop: signal all workers to stop immediately
             for worker in self.workers:
-                worker.join(timeout=5)
-        
-        self.workers.clear()
-        self.logger.info("All workers stopped")
+                worker.stop()
+            
+            # Clear task queue to prevent workers from picking up new tasks
+            while not self.task_queue.empty():
+                try:
+                    self.task_queue.get_nowait()
+                    self.task_queue.task_done()
+                except queue.Empty:
+                    break
+            
+            # Don't wait - let daemon threads die naturally
+            # (they will be killed when main thread exits)
+            self.workers.clear()
+            self.logger.info("All workers force-stopped (daemon threads)")
+        else:
+            # Graceful stop: send poison pills
+            for _ in range(self.num_workers):
+                self.task_queue.put(None)
+            
+            # Stop all workers
+            for worker in self.workers:
+                worker.stop()
+            
+            # Wait for workers to finish if requested
+            if wait:
+                for worker in self.workers:
+                    worker.join(timeout=5)
+            
+            self.workers.clear()
+            self.logger.info("All workers stopped" + (" gracefully" if wait else ""))
     
     def is_active(self) -> bool:
         """Check if any workers are still active"""
