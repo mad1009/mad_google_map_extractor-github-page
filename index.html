@@ -194,7 +194,8 @@
 
             <div class="panel ctas" aria-label="Primary actions">
                 <button id="donate-open" class="btn btn-primary">💙 Support / Donate</button>
-                <a id="download-exe-btn" class="btn btn-primary" href="#">⬇️ Download EXE</a>
+                <!-- Direct download of local rar file in repo root -->
+                <a id="download-exe-btn" class="btn btn-primary" href="https://drive.google.com/file/d/1Lh4oma5iK6xdZUUI1OxwovuCsLz4dHVU/view?usp=sharing" download>⬇️ Download EXE</a>
                 <a class="btn btn-ghost small" href="https://github.com/mad1009/mad_google_map_extractor?tab=readme-ov-file" target="_blank" rel="noopener">View source</a>
             </div>
         </aside>
@@ -214,7 +215,8 @@
                     <button id="custom-donate-btn" class="btn btn-primary small">Donate</button>
                 </div>
                 <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-                    <button id="continue-download-btn" class="btn" style="background:linear-gradient(90deg,var(--accent),#19a35a);color:white">Continue to Download</button>
+                    <!-- Link directly downloads the local rar file. Using relative path so it works on GitHub pages / local preview -->
+                    <a id="continue-download-btn" class="btn" style="background:linear-gradient(90deg,var(--accent),#19a35a);color:white" href="https://drive.google.com/file/d/1Lh4oma5iK6xdZUUI1OxwovuCsLz4dHVU/view?usp=sharing" download>Continue to Download</a>
                 </div>
             </div>
         </div>
@@ -261,13 +263,15 @@
             if(amt && parseInt(amt) > 0){ window.open('https://paypal.me/mad10079/' + amt, '_blank', 'noopener'); }
         });
 
-        continueBtn.addEventListener('click', ()=>{
-            window.location.href = 'https://github.com/mad1009/mad_google_map_extractor?tab=readme-ov-file/releases/latest/download/GoogleMapsScraperPro.exe';
-            closeModal();
+        // When the continue-download link is clicked, allow browser to download the file
+        // then close the modal. Use mousedown to attempt starting the download before closing
+        continueBtn.addEventListener('click', (e)=>{
+            // allow default anchor download behavior, then close modal shortly after
+            setTimeout(closeModal, 250);
         });
 
-        // Download CTA just opens modal first
-        downloadBtn.addEventListener('click', (e)=>{ e.preventDefault(); openModal(); });
+        // Download button is a real anchor with download attribute; no JS interception needed
+        // Keep it behaving like a normal link so users can right-click/save-as, etc.
     </script>
 </body>
 </html>
