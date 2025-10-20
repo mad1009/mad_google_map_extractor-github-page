@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Google Maps Scraper Pro — Project Info</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="assets/icon.ico">
+    <style>
+        /* Design system tokens */
+        :root{
+            --bg:#f5f7fb;
+            --card:#ffffff;
+            --muted:#6b7280;
+            --brand-1:#0070BA;
+            --brand-2:#003087;
+            --accent:#2ecc71;
+            --glass: rgba(255,255,255,0.6);
+            --radius:14px;
+            --shadow-sm: 0 6px 18px rgba(3,16,46,0.06);
+            --shadow-lg: 0 12px 40px rgba(3,16,46,0.10);
+            --max-width:1100px;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+        }
+
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0;
+            font-family:Inter, 'Segoe UI', Roboto, system-ui, Arial, sans-serif;
+            background:linear-gradient(180deg,var(--bg),#eef3fb);
+            color:#0f172a;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            line-height:1.45;
+            padding:36px 20px;
+        }
+
+        /* Page shell */
+        .page{
+            max-width:var(--max-width);
+            margin:0 auto;
+            display:grid;
+            grid-template-columns: 1fr 360px;
+            gap:28px;
+            align-items:start;
+        }
+
+        /* Hero */
+        .hero{
+            grid-column:1 / -1;
+            display:flex;
+            gap:20px;
+            align-items:center;
+            background: linear-gradient(90deg,var(--brand-1) 0%, var(--brand-2) 100%);
+            color:white;
+            padding:28px;
+            border-radius:22px;
+            box-shadow:var(--shadow-lg);
+        }
+        .hero .logo{font-size:48px}
+        .hero h1{margin:0;font-size:28px;letter-spacing:0.2px}
+        .hero p{margin:4px 0 0;color:rgba(255,255,255,0.92);opacity:0.95}
+
+        /* Main content */
+        main{background:transparent}
+        .lead-card{
+            background:var(--card);
+            border-radius:var(--radius);
+            padding:18px 20px;
+            box-shadow:var(--shadow-sm);
+            margin-bottom:18px;
+        }
+        .meta-grid{
+            display:flex;flex-wrap:wrap;gap:12px;margin-top:10px
+        }
+        .meta-item{background:linear-gradient(180deg,#fbfdff,#f7fbff);padding:12px 14px;border-radius:12px;min-width:120px;flex:1}
+        .meta-item .k{font-size:13px;color:var(--muted)}
+        .meta-item .v{font-weight:600;margin-top:4px}
+
+        /* Features grid */
+        .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+        .feature{
+            background:linear-gradient(180deg,#f6fbff,#f0f6ff);
+            border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow-sm);
+        }
+        .feature .ico{font-size:20px;color:var(--brand-1)}
+        .feature .title{font-weight:700}
+        .feature .desc{font-size:13px;color:var(--muted)}
+
+        /* Readme / docs */
+        .docs{margin-top:18px;background:linear-gradient(180deg,#fff,#fcfdff);padding:18px;border-radius:12px;box-shadow:var(--shadow-sm)}
+        .docs h3{margin-top:0;color:var(--brand-2)}
+        .docs p{color:#334155}
+        .docs ul{margin:8px 0 16px 20px}
+        .docs code{background:#f3f4f6;padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:13px}
+
+        /* Right column */
+        aside{position:relative}
+        .panel{background:var(--card);border-radius:12px;padding:16px;box-shadow:var(--shadow-sm);margin-bottom:14px}
+        .status{font-family:var(--mono);color:var(--brand-2);white-space:pre-line}
+        .screenshot{width:100%;height:auto;border-radius:10px;display:block;border:1px solid #e6eefb}
+
+        /* CTA */
+        .ctas{display:flex;flex-direction:column;gap:10px}
+        .btn{display:inline-flex;align-items:center;gap:10px;justify-content:center;padding:12px 14px;border-radius:10px;border:none;text-decoration:none;font-weight:700;cursor:pointer}
+        .btn-primary{background:linear-gradient(90deg,var(--brand-1),var(--brand-2));color:white;box-shadow:0 8px 22px rgba(3,81,140,0.12)}
+        .btn-ghost{background:transparent;border:1px solid #e3eefc;color:var(--brand-2);font-weight:600}
+        .small{font-size:13px;padding:8px 10px;border-radius:8px}
+
+        /* Donate modal (accessible) */
+        .modal-backdrop{position:fixed;inset:0;background:rgba(3,6,23,0.5);display:none;align-items:center;justify-content:center;padding:18px;z-index:1000}
+        .modal{background:var(--card);width:100%;max-width:520px;border-radius:14px;padding:22px;box-shadow:var(--shadow-lg)}
+        .modal h2{margin:0 0 8px}
+        .modal .amounts{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+        .pill{background:linear-gradient(90deg,var(--brand-1),var(--brand-2));color:white;padding:8px 12px;border-radius:10px;cursor:pointer;border:none}
+        .modal .close{position:absolute;right:18px;top:14px;border:none;background:transparent;font-size:20px;color:var(--muted);cursor:pointer}
+
+        footer{grid-column:1 / -1;text-align:center;color:var(--muted);margin-top:18px;font-size:14px}
+
+        /* Subtle micro interactions */
+        .feature, .meta-item, .panel{transition:transform .18s ease, box-shadow .18s ease}
+        .feature:hover, .meta-item:hover{transform:translateY(-6px);box-shadow:0 14px 40px rgba(2,6,23,0.06)}
+
+        @media (max-width:950px){
+            .page{grid-template-columns:1fr;padding-bottom:40px}
+            .hero{flex-direction:column;align-items:flex-start}
+        }
+    </style>
+</head>
+<body>
+    <div class="page" id="page-root">
+        <header class="hero" role="banner">
+            <div class="logo">🗺️</div>
+            <div>
+                <h1>Google Maps Scraper Pro</h1>
+                <p class="muted">Fast, reliable Google Maps business data extraction — thoughtfully designed for usability and transparency.</p>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:10px">
+                <a class="btn btn-primary" href="https://github.com/mad1009/mad_google_map_extractor?tab=readme-ov-file" target="_blank" rel="noopener">🌟 View on GitHub</a>
+            </div>
+        </header>
+
+        <main>
+            <section class="lead-card" aria-labelledby="about-title">
+                <h2 id="about-title">About this project</h2>
+                <div style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+                    <p style="margin:6px 0 0;max-width:64%;color:#334155">Google Maps Scraper Pro is a fast, user-focused tool for extracting business data from Google Maps. It emphasizes speed, monitoring, and flexible output formats while giving the user control over scraping behavior.</p>
+                    <div class="meta-grid" aria-hidden="true">
+                        <div class="meta-item"><div class="k">Version</div><div class="v">1.0</div></div>
+                        <div class="meta-item"><div class="k">Author</div><div class="v">mad1009</div></div>
+                        <div class="meta-item"><div class="k">License</div><div class="v">MIT</div></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="docs" aria-labelledby="features-title">
+                <h3 id="features-title">Key features</h3>
+                <div class="features-grid" role="list">
+                    <div class="feature" role="listitem"><div class="ico">⚡</div><div><div class="title">Multi-threaded scraping</div><div class="desc">Concurrent workers accelerate large exports.</div></div></div>
+                    <div class="feature" role="listitem"><div class="ico">🖥️</div><div><div class="title">Modern GUI</div><div class="desc">Clean CustomTkinter interface for monitoring and control.</div></div></div>
+                    <div class="feature" role="listitem"><div class="ico">🛡️</div><div><div class="title">Proxy support</div><div class="desc">Rotate proxies to reduce blocking while scraping.</div></div></div>
+                    <div class="feature" role="listitem"><div class="ico">💾</div><div><div class="title">Export to CSV/Excel</div><div class="desc">Auto-save and manual export options included.</div></div></div>
+                    <div class="feature" role="listitem"><div class="ico">📈</div><div><div class="title">Real-time progress</div><div class="desc">Live worker status, tasks, and result counts.</div></div></div>
+                    <div class="feature" role="listitem"><div class="ico">🧹</div><div><div class="title">Cleaning & dedupe</div><div class="desc">Built-in duplicate removal and normalization.</div></div></div>
+                </div>
+
+                <h3 style="margin-top:18px">Quick start</h3>
+                <ol>
+                    <li>Install Python 3.10+ and create a virtual environment.</li>
+                    <li>Install dependencies and Playwright browsers (e.g., <code>playwright install chromium</code>).</li>
+                    <li>Run <code>python main.py</code> to start the scraper UI.</li>
+                </ol>
+
+                <h3>Usage</h3>
+                <p>Enter search queries, configure threads, proxies, and hit Start. Results are saved to <code>output/</code> by default.</p>
+            </section>
+
+            <section class="docs" aria-labelledby="troubleshoot-title">
+                <h3 id="troubleshoot-title">Troubleshooting & notes</h3>
+                <ul>
+                    <li>Module or dependency errors: ensure your virtualenv is active and reinstall requirements.</li>
+                    <li>Browser errors: re-run <code>playwright install chromium</code> or check driver versions.</li>
+                    <li>No results: try broader queries, verify network/proxy settings, or run headful to inspect.</li>
+                </ul>
+                <p style="font-size:13px;color:var(--muted)">For educational and research use only. Respect Google's Terms of Service and robots.txt.</p>
+            </section>
+        </main>
+
+        <aside>
+            <div class="panel">
+                <h4 style="margin:0 0 8px">Screenshots</h4>
+                <img class="screenshot" src="screenshots/GoogleMapsScraper_uAEQPihBtk.png" alt="Main Window screenshot">
+            </div>
+
+            <div class="panel ctas" aria-label="Primary actions">
+                <button id="donate-open" class="btn btn-primary">💙 Support / Donate</button>
+                <a id="download-exe-btn" class="btn btn-primary" href="#">⬇️ Download EXE</a>
+                <a class="btn btn-ghost small" href="https://github.com/mad1009/mad_google_map_extractor?tab=readme-ov-file" target="_blank" rel="noopener">View source</a>
+            </div>
+        </aside>
+
+        <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal" role="document">
+                <button class="close" id="modal-close" aria-label="Close dialog">×</button>
+                <h2 id="modal-title">Support the project</h2>
+                <p style="margin-top:6px">If this tool helps you, please consider a small donation. Choose a quick amount or enter your own.</p>
+                <div class="amounts" role="group" aria-label="Suggested amounts">
+                    <button class="pill" data-amt="1">$1</button>
+                    <button class="pill" data-amt="5">$5</button>
+                    <button class="pill" data-amt="10">$10</button>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+                    <input id="custom-amount" type="number" min="1" placeholder="Custom amount" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e6eefb">
+                    <button id="custom-donate-btn" class="btn btn-primary small">Donate</button>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+                    <button id="continue-download-btn" class="btn" style="background:linear-gradient(90deg,var(--accent),#19a35a);color:white">Continue to Download</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>&copy; 2024 Google Maps Scraper Pro — Made with <span style="color:var(--brand-1)">&#10084;</span></footer>
+    </div>
+
+    <script>
+        // Modal behaviour with accessibility improvements
+        const modal = document.getElementById('modal');
+        const donateBtn = document.getElementById('donate-open');
+        const modalClose = document.getElementById('modal-close');
+        const continueBtn = document.getElementById('continue-download-btn');
+        const downloadBtn = document.getElementById('download-exe-btn');
+        const pills = document.querySelectorAll('.pill');
+        const customAmount = document.getElementById('custom-amount');
+        const customDonateBtn = document.getElementById('custom-donate-btn');
+
+        function openModal(){
+            modal.style.display = 'flex';
+            // focus trap: focus first interactive element
+            setTimeout(()=> document.querySelector('.pill').focus(), 10);
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(){
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            donateBtn.focus();
+        }
+
+        donateBtn.addEventListener('click', openModal);
+        modalClose.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+        document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && modal.style.display === 'flex') closeModal(); });
+
+        // Quick amount pills
+        pills.forEach(p => p.addEventListener('click', ()=>{
+            const amt = p.getAttribute('data-amt');
+            window.open('https://paypal.me/yourusername/' + amt, '_blank', 'noopener');
+        }));
+
+        customDonateBtn.addEventListener('click', ()=>{
+            const amt = customAmount.value;
+            if(amt && parseInt(amt) > 0){ window.open('https://paypal.me/yourusername/' + amt, '_blank', 'noopener'); }
+        });
+
+        continueBtn.addEventListener('click', ()=>{
+            window.location.href = 'https://github.com/mad1009/mad_google_map_extractor?tab=readme-ov-file/releases/latest/download/GoogleMapsScraperPro.exe';
+            closeModal();
+        });
+
+        // Download CTA just opens modal first
+        downloadBtn.addEventListener('click', (e)=>{ e.preventDefault(); openModal(); });
+    </script>
+</body>
+</html>
