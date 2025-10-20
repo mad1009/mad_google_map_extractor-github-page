@@ -253,12 +253,12 @@
         // Quick amount pills
         pills.forEach(p => p.addEventListener('click', ()=>{
             const amt = p.getAttribute('data-amt');
-            window.open('https://paypal.me/yourusername/' + amt, '_blank', 'noopener');
+            window.open('https://paypal.me/mad10079/' + amt, '_blank', 'noopener');
         }));
 
         customDonateBtn.addEventListener('click', ()=>{
             const amt = customAmount.value;
-            if(amt && parseInt(amt) > 0){ window.open('https://paypal.me/yourusername/' + amt, '_blank', 'noopener'); }
+            if(amt && parseInt(amt) > 0){ window.open('https://paypal.me/mad10079/' + amt, '_blank', 'noopener'); }
         });
 
         continueBtn.addEventListener('click', ()=>{
