@@ -39,7 +39,6 @@ Below are some screenshots of Google Maps Scraper Pro in action:
 ### Prerequisites
 
 - Python 3.10+ (Windows, macOS, Linux)
-- 4GB+ RAM recommended
 
 ### Installation
 
