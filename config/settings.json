@@ -1,11 +1,11 @@
 {
-    "max_threads": 3,
+    "max_threads": 2,
     "request_delay_min": 2,
     "request_delay_max": 5,
     "use_proxy": false,
     "headless": true,
     "timeout": 30000,
-    "max_results_per_query": 100,
+    "max_results_per_query": 50,
     "scroll_pause_time": 2,
     "user_agent_rotation": true,
     "viewport_width": 1920,

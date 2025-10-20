@@ -18,6 +18,7 @@ from src.utils.logger import Logger
 from src.utils.data_processor import DataProcessor
 from src.utils.exporter import DataExporter
 from src.utils.notifier import Notifier
+import json
 
 
 class MainWindow(ctk.CTk):
@@ -48,6 +49,9 @@ class MainWindow(ctk.CTk):
         # Result checking
         self.result_check_job = None
         
+        # Add menu bar for config/proxy editors
+        self._create_menu()
+
         # Setup UI
         self._create_ui()
         
@@ -57,6 +61,19 @@ class MainWindow(ctk.CTk):
         
         self.logger.info("Application started")
     
+    def _create_menu(self):
+        """Create a menu bar with config/proxy editors"""
+        import tkinter as tk
+
+        # CustomTkinter does not have a native menu, so use Tkinter's Menu
+        self.menu_bar = tk.Menu(self)
+        self.config(menu=self.menu_bar)
+
+        config_menu = tk.Menu(self.menu_bar, tearoff=0)
+        config_menu.add_command(label="Edit Settings (settings.json)", command=self.open_settings_editor)
+        config_menu.add_command(label="Edit Proxies (proxies.txt)", command=self.open_proxy_editor)
+        self.menu_bar.add_cascade(label="Configuration", menu=config_menu)
+
     def _create_ui(self):
         """Create the user interface"""
         
@@ -156,7 +173,7 @@ class MainWindow(ctk.CTk):
         # Control Buttons
         button_frame = ctk.CTkFrame(left_frame, fg_color="transparent")
         button_frame.grid(row=5, column=0, padx=15, pady=(10, 15), sticky="ew")
-        
+
         self.start_btn = ctk.CTkButton(
             button_frame,
             text="▶ Start",
@@ -166,7 +183,7 @@ class MainWindow(ctk.CTk):
             **get_button_style('success')
         )
         self.start_btn.pack(fill="x", pady=2)
-        
+
         self.stop_btn = ctk.CTkButton(
             button_frame,
             text="⏹ Stop",
@@ -177,7 +194,18 @@ class MainWindow(ctk.CTk):
             **get_button_style('danger')
         )
         self.stop_btn.pack(fill="x", pady=2)
-        
+
+        # NEW: Open Output Folder button
+        self.open_output_btn = ctk.CTkButton(
+            button_frame,
+            text="📂 Open Output Folder",
+            command=self.open_output_folder,
+            font=FONTS['normal'],
+            height=36,
+            **get_button_style('primary')
+        )
+        self.open_output_btn.pack(fill="x", pady=2)
+
         # Donate Section
         donate_frame = ctk.CTkFrame(left_frame, fg_color="transparent")
         donate_frame.grid(row=6, column=0, padx=15, pady=(5, 10), sticky="ew")
@@ -816,3 +844,124 @@ class MainWindow(ctk.CTk):
         
         self.logger.info("Application closing")
         self.destroy()
+    
+    def open_settings_editor(self):
+        """Open a modal to edit and save settings.json"""
+        import os
+
+        # Correct path: config/settings.json
+        settings_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+            "config",
+            "settings.json"
+        )
+
+        # Modal window
+        modal = ctk.CTkToplevel(self)
+        modal.title("Edit settings.json")
+        modal.geometry("600x500")
+        modal.grab_set()
+
+        # Load settings.json
+        try:
+            with open(settings_path, "r", encoding="utf-8") as f:
+                settings_data = f.read()
+        except Exception as e:
+            settings_data = "{}"
+            self.logger.error(f"Could not load settings.json: {e}")
+
+        # Textbox for editing
+        textbox = ctk.CTkTextbox(modal, font=FONTS['normal'])
+        textbox.pack(fill="both", expand=True, padx=16, pady=(16, 8))
+        textbox.insert("1.0", settings_data)
+
+        status_label = ctk.CTkLabel(modal, text="", text_color="red", font=FONTS['small'])
+        status_label.pack(pady=(0, 8))
+
+        def save_settings():
+            new_data = textbox.get("1.0", "end").strip()
+            try:
+                # Validate JSON
+                parsed = json.loads(new_data)
+                with open(settings_path, "w", encoding="utf-8") as f:
+                    json.dump(parsed, f, indent=4)
+                status_label.configure(text="✅ Saved successfully.", text_color="green")
+                self.logger.info("settings.json saved.")
+            except Exception as e:
+                status_label.configure(text=f"❌ Invalid JSON: {e}", text_color="red")
+                self.logger.error(f"Failed to save settings.json: {e}")
+
+        save_btn = ctk.CTkButton(
+            modal, text="💾 Save", command=save_settings, font=FONTS['normal'], height=36, **get_button_style('success')
+        )
+        save_btn.pack(pady=(0, 16))
+
+    def open_proxy_editor(self):
+        """Open a modal to edit and save proxies.txt"""
+        import os
+
+        # Typical proxy file location: config/proxies.txt
+        proxy_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+            "config",
+            "proxies.txt"
+        )
+
+        modal = ctk.CTkToplevel(self)
+        modal.title("Edit proxies.txt")
+        modal.geometry("600x500")
+        modal.grab_set()
+
+        try:
+            with open(proxy_path, "r", encoding="utf-8") as f:
+                proxy_data = f.read()
+        except Exception as e:
+            proxy_data = ""
+            self.logger.error(f"Could not load proxies.txt: {e}")
+
+        textbox = ctk.CTkTextbox(modal, font=FONTS['normal'])
+        textbox.pack(fill="both", expand=True, padx=16, pady=(16, 8))
+        textbox.insert("1.0", proxy_data)
+
+        status_label = ctk.CTkLabel(modal, text="", text_color="red", font=FONTS['small'])
+        status_label.pack(pady=(0, 8))
+
+        def save_proxies():
+            new_data = textbox.get("1.0", "end").strip()
+            try:
+                with open(proxy_path, "w", encoding="utf-8") as f:
+                    f.write(new_data)
+                status_label.configure(text="✅ Saved successfully.", text_color="green")
+                self.logger.info("proxies.txt saved.")
+            except Exception as e:
+                status_label.configure(text=f"❌ Failed to save: {e}", text_color="red")
+                self.logger.error(f"Failed to save proxies.txt: {e}")
+
+        save_btn = ctk.CTkButton(
+            modal, text="💾 Save", command=save_proxies, font=FONTS['normal'], height=36, **get_button_style('success')
+        )
+        save_btn.pack(pady=(0, 16))
+
+    def open_output_folder(self):
+        """Open the output/results folder in the system file explorer"""
+        import os
+        import platform
+        import subprocess
+
+        # You may want to adjust this path if your output folder is elsewhere
+        output_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+            "output"
+        )
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir, exist_ok=True)
+        try:
+            if platform.system() == 'Windows':
+                os.startfile(output_dir)
+            elif platform.system() == 'Darwin':
+                subprocess.run(['open', output_dir])
+            else:
+                subprocess.run(['xdg-open', output_dir])
+            self.logger.info(f"Opened output folder: {output_dir}")
+        except Exception as e:
+            self.logger.error(f"Failed to open output folder: {e}")

@@ -33,3 +33,4 @@ config/proxies.txt
 # Keep directories
 !output/.gitkeep
 !logs/.gitkeep
+project_info.html
