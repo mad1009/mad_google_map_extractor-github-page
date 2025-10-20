@@ -17,6 +17,23 @@
 
 ---
 
+
+## 📸 Screenshots
+
+Below are some screenshots of Google Maps Scraper Pro in action:
+
+<p align="center">
+	<img src="screenshots/GoogleMapsScraper_uAEQPihBtk.png" alt="Main UI" width="600" />
+	<br>
+	<img src="screenshots/GoogleMapsScraper_xuuy918mIQ.png" alt="Results Panel" width="600" />
+	<br>
+	<img src="screenshots/python_Fpol8hCChd.png" alt="Python Notification Example" width="400" />
+	<br>
+	<img src="screenshots/python_VHp5XPwv7f.png" alt="Python Notification Example 2" width="400" />
+</p>
+
+---
+
 ## ⚡ Quick Start
 
 ### Prerequisites
@@ -79,7 +96,7 @@ python main.py
 
 Want to support development?
 
-[![Contribute via PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=YOUR_BUTTON_ID)
+[![Contribute via PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/mad10079/10/)
 
 ---
 
